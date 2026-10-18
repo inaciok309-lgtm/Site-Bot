@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2a2c36">
+<title>Painel do Bot</title>
+<style>
+:root{--bg:#1e1f26;--card:#2a2c36;--card2:#383b4b;--txt:#f2f3f5;--mut:#a3a6b3;--pri:#5865f2;--ok:#3ba55d;--err:#ed4245;--rad:14px;--navh:64px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 16px)}
+a{color:inherit;text-decoration:none}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));background:var(--card);position:sticky;top:0;z-index:5}
+.brand{font-weight:700;font-size:18px;margin-right:auto}
+.me{display:flex;align-items:center;gap:8px;min-width:0}
+.me img{width:34px;height:34px;border-radius:50%}
+.me span{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:0 16px;min-height:46px;background:var(--pri);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.btn.sm{min-height:38px;padding:0 12px;font-size:14px}
+.btn.sec{background:var(--card2)}.btn.ok{background:var(--ok)}.btn.err{background:var(--err)}.btn.block{width:100%}
+.btn:active{filter:brightness(.9)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--card);border-top:1px solid var(--card2)}
+.nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--mut)}
+.nav a i{font-style:normal;font-size:22px;line-height:1.1}
+.nav a.on{color:var(--txt);font-weight:600}
+main{max-width:760px;margin:0 auto;padding:16px 14px}
+h2{margin:4px 0 12px;font-size:22px}h3{margin:20px 0 8px;font-size:16px}
+.mut{color:var(--mut)}
+.warn{background:#4a3b1f;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.hero{text-align:center;padding:40px 6px}
+.hero h1{font-size:28px;margin:0 0 8px}.hero p{color:var(--mut);margin:0 0 22px}
+.hero .btn{display:flex;margin:10px auto 0;max-width:340px}
+.card{background:var(--card);border-radius:var(--rad);padding:14px;margin-bottom:12px}
+.glist{display:flex;flex-direction:column;gap:10px}
+.guild{display:flex;align-items:center;gap:12px;margin:0}
+.guild .ic{flex:none;width:48px;height:48px;border-radius:50%;background:var(--card2);display:grid;place-items:center;font-weight:700;overflow:hidden}
+.guild .ic img{width:100%;height:100%}
+.guild b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+label{display:block;margin:14px 0 6px;color:var(--mut);font-size:14px}
+input,select,textarea{width:100%;min-height:46px;background:var(--bg);color:var(--txt);border:1px solid var(--card2);border-radius:10px;padding:10px 12px;font:inherit;font-size:16px}
+textarea{min-height:110px;resize:vertical}
+.chk{display:flex;align-items:center;gap:12px;min-height:44px;margin:0;color:var(--txt);font-size:16px}
+.chk input{width:22px;height:22px;min-height:0;flex:none;accent-color:var(--pri)}
+.cl{max-height:210px;overflow:auto;background:var(--bg);border:1px solid var(--card2);border-radius:10px;padding:2px 12px}
+.row{display:grid;grid-template-columns:1fr;gap:0 12px}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin:12px -14px;padding:0 14px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;background:var(--card2);color:var(--mut)}.tab.on{background:var(--pri);color:#fff}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.bar .btn{flex:1}
+.stick{position:sticky;bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 8px);padding-top:10px;background:linear-gradient(transparent,var(--card) 35%)}
+.acc{display:flex;align-items:center;gap:10px;background:var(--card2);border-radius:10px;padding:10px;margin-top:12px}
+.acc img{width:38px;height:38px;border-radius:50%}
+#toast{position:fixed;left:50%;bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 84px);transform:translateX(-50%);padding:11px 18px;border-radius:12px;background:var(--ok);color:#fff;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;width:max-content;max-width:90vw;text-align:center;z-index:9}
+#toast.show{opacity:1}#toast.bad{background:var(--err)}
+#busy{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--card2);padding:8px 16px;border-radius:99px;font-size:14px;display:none;z-index:9;box-shadow:0 4px 14px #0006}
+@media(min-width:760px){
+  :root{--navh:0px}
+  .nav{position:static;max-width:760px;margin:10px auto 0;height:auto;background:none;border:0;gap:8px;padding:0 14px}
+  .nav a{flex:none;flex-direction:row;gap:8px;padding:9px 16px;background:var(--card);border-radius:10px;font-size:15px}
+  .nav a i{font-size:18px}.nav a.on{background:var(--pri)}
+  .row{grid-template-columns:1fr 1fr}
+  .stick{bottom:12px}
+  #toast{bottom:24px}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="#/">🤖 Painel do Bot</a>
+  <div id="user" class="me"></div>
+</header>
+<nav id="nav" class="nav"></nav>
+<main id="app"></main>
+<div id="busy">⏳ Falando com o bot…</div>
+<div id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const h = (tag, props = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k === 'value' || k === 'checked') e[k] = v;
+    else e.setAttribute(k, v);
+  }
+  for (const c of kids.flat()) if (c !== null && c !== undefined && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
+  return e;
+};
+let PUB = null, toastTimer;
+function toast(msg, isBad) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show' + (isBad ? ' bad' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.className = '', 3500);
+}
+const HDR = { 'Content-Type': 'application/json', 'X-Requested-With': 'fetch' };
+async function api(path, method = 'GET', body) {
+  const send = async (u, m, b) => { const r = await fetch(u, { method: m, headers: HDR, body: b ? JSON.stringify(b) : undefined }); return [r, await r.json().catch(() => ({}))]; };
+  let [res, data] = await send(path, method, body);
+  if (res.status === 202 && data.jobId) {          // o bot ainda não respondeu: continua perguntando
+    $('#busy').style.display = 'block';
+    try {
+      for (let i = 0; i < 45 && res.status === 202; i++) { await sleep(1200); [res, data] = await send('/api/job/' + data.jobId); }
+    } finally { $('#busy').style.display = 'none'; }
+    if (res.status === 202) throw new Error('O bot não respondeu a tempo. Tente de novo.');
+  }
+  if (!res.ok) throw new Error(data.error || 'Erro ' + res.status);
+  return data;
+}
+async function run(fn, okMsg) {
+  try { const r = await fn(); toast(okMsg || (r && r.message) || 'Feito!'); return r; }
+  catch (e) { toast(e.message, true); }
+}
+const avatar = (u) => u.avatar ? 'https://cdn.discordapp.com/avatars/' + u.id + '/' + u.avatar + '.png?size=64' : 'https://cdn.discordapp.com/embed/avatars/0.png';
+const opts = (list, none) => [none ? h('option', { value: '' }, none) : null, ...list.map(o => h('option', { value: o.value ?? o.id }, o.label ?? o.name))];
+function sel(list, value, none) {
+  const s = h('select', {}, opts(list, none)); s.value = value ?? ''; return s;
+}
+function checkList(list, selected) {
+  const boxes = list.map(o => { const i = h('input', { type: 'checkbox', checked: (selected || []).includes(o.id) }); return { id: o.id, i, el: h('label', { class: 'chk' }, i, o.name) }; });
+  return { el: h('div', { class: 'cl' }, boxes.length ? boxes.map(b => b.el) : h('p', { class: 'mut' }, 'Nada para escolher.')), values: () => boxes.filter(b => b.i.checked).map(b => b.id) };
+}
+const chk = (label, checked) => { const i = h('input', { type: 'checkbox', checked: !!checked }); return { i, el: h('label', { class: 'chk' }, i, label) }; };
+const field = (label, input) => h('div', {}, h('label', {}, label), input);
+
+// ---------- cabeçalho e navegação ----------
+function renderHeader() {
+  const here = location.hash || '#/';
+  const nav = $('#nav'); nav.replaceChildren();
+  const item = (icon, text, attrs, on) => h('a', { ...attrs, class: on ? 'on' : '' }, h('i', {}, icon), text);
+  if (PUB.user) {
+    nav.append(item('🏠', 'Servidores', { href: '#/' }, here === '#/' || here.startsWith('#/guild')));
+    if (PUB.isBaygon) nav.append(item('🦟', 'Baygon', { href: '#/baygon' }, here === '#/baygon'));
+  } else nav.append(item('🔑', 'Entrar', { href: '/auth/login' }, here === '#/'));
+  nav.append(item('➕', 'Adicionar bot', { href: PUB.inviteUrl, target: '_blank', rel: 'noopener' }, false));
+
+  const u = $('#user'); u.replaceChildren();
+  if (PUB.user) u.append(h('img', { src: avatar(PUB.user), alt: '' }), h('span', {}, PUB.user.username),
+    h('button', { class: 'btn sec sm', onclick: async () => { await api('/api/logout', 'POST'); location.hash = '#/'; await boot(); } }, 'Sair'));
+  else u.append(h('a', { class: 'btn sm', href: '/auth/login' }, 'Entrar'));
+}
+
+// ---------- telas ----------
+function viewHome(app) {
+  app.append(h('div', { class: 'hero' },
+    h('h1', {}, 'Configure o bot pelo celular'),
+    h('p', {}, 'Tickets, logs, automod e mais — sem decorar comandos. Entre com sua conta do Discord para ver seus servidores.'),
+    h('a', { class: 'btn', href: '/auth/login' }, 'Entrar com Discord'),
+    h('a', { class: 'btn ok', href: PUB.inviteUrl, target: '_blank', rel: 'noopener' }, '➕ Adicionar bot')));
+}
+
+async function viewServers(app) {
+  if (!PUB.botOnline) app.append(h('div', { class: 'warn' }, '⚠️ O bot está offline ou ainda não conectou ao site. Você pode ver os servidores, mas não configurar até ele conectar.'));
+  app.append(h('h2', {}, 'Seus servidores'), h('p', { class: 'mut' }, 'Servidores onde você é dono, Administrador ou tem Gerenciar Servidor.'));
+  const { guilds } = await api('/api/guilds');
+  if (!guilds.length) { app.append(h('p', { class: 'mut' }, 'Nenhum servidor encontrado com a sua permissão.')); return; }
+  const list = h('div', { class: 'glist' });
+  for (const g of guilds) {
+    const ic = h('div', { class: 'ic' }, g.icon ? h('img', { src: 'https://cdn.discordapp.com/icons/' + g.id + '/' + g.icon + '.png?size=96', alt: '' }) : g.name.slice(0, 2).toUpperCase());
+    list.append(h('div', { class: 'card guild' }, ic, h('b', {}, g.name),
+      g.botIn ? h('a', { class: 'btn sm', href: '#/guild/' + g.id }, '⚙️ Configurar') : h('a', { class: 'btn ok sm', href: g.inviteUrl, target: '_blank', rel: 'noopener' }, '➕ Adicionar')));
+  }
+  app.append(list);
+}
+
+const LOG_LABELS = { join: 'Entradas', leave: 'Saídas', messageDelete: 'Msgs apagadas', messageEdit: 'Msgs editadas', moderation: 'Moderação', automod: 'Automod', voice: 'Voz', channels: 'Canais', rolesServer: 'Cargos (servidor)', nickname: 'Apelidos', memberRoles: 'Cargos (membro)', nativeBan: 'Ban nativo' };
+
+async function viewGuild(app, id) {
+  app.append(h('p', { class: 'mut' }, 'Carregando servidor…'));
+  const d = await api('/api/guild/' + id);
+  app.replaceChildren();
+  const c = d.config;
+  app.append(h('a', { class: 'btn sec sm', href: '#/' }, '← Servidores'), h('h2', { style: 'margin-top:14px' }, d.name));
+  const body = h('div', { class: 'card' });
+  const tabs = h('div', { class: 'tabs' });
+  const names = { ticket: '🎫 Tickets', logs: '📋 Logs', automod: '🛡️ Automod' };
+  const builders = { ticket: buildTicket, logs: buildLogs, automod: buildAutomod };
+  const show = (k) => {
+    tabs.replaceChildren(...Object.keys(names).map(x => h('button', { class: 'btn sm tab' + (x === k ? ' on' : ''), onclick: () => show(x) }, names[x])));
+    body.replaceChildren(builders[k]());
+  };
+  const save = (section, data) => run(() => api('/api/guild/' + id + '/config/' + section, 'PUT', data));
+  const saveBar = (fn) => h('div', { class: 'bar stick' }, h('button', { class: 'btn ok', onclick: fn }, '💾 Salvar'));
+  const colorList = d.colors.map(x => ({ id: x.value, name: x.name }));
+
+  function buildTicket() {
+    const t = c.ticket;
+    const cat = sel(d.categories, t.categoryId, '(nenhuma)'), staff = sel(d.roles, t.staffRoleId, '(nenhum)');
+    const msg = h('textarea', { value: t.message });
+    const col1 = sel(colorList, t.color), col2 = sel(colorList, t.channelColor), pub = sel(d.text, '', '(escolha o canal)');
+    return h('div', {},
+      field('Categoria onde os tickets são criados', cat), field('Cargo da equipe (vê os tickets)', staff), field('Mensagem do painel', msg),
+      h('div', { class: 'row' }, field('Cor do painel', col1), field('Cor dentro do ticket', col2)),
+      saveBar(() => save('ticket', { categoryId: cat.value || null, staffRoleId: staff.value || null, message: msg.value, color: col1.value, channelColor: col2.value })),
+      h('h3', {}, 'Publicar painel de tickets'), field('Canal', pub),
+      h('div', { class: 'bar' }, h('button', { class: 'btn', onclick: () => pub.value ? run(() => api('/api/guild/' + id + '/ticket-publish', 'POST', { channelId: pub.value })) : toast('Escolha um canal.', true) }, '📨 Publicar')));
+  }
+  function buildLogs() {
+    const ch = sel(d.text, c.logs.channelId, '(nenhum)');
+    const boxes = Object.keys(LOG_LABELS).map(k => ({ k, ...chk(LOG_LABELS[k], c.logs.events[k]) }));
+    return h('div', {}, field('Canal de logs', ch), h('h3', {}, 'Eventos registrados'), h('div', { class: 'row' }, boxes.map(b => b.el)),
+      saveBar(() => save('logs', { channelId: ch.value || null, events: Object.fromEntries(boxes.map(b => [b.k, b.i.checked])) })));
+  }
+  function buildAutomod() {
+    const a = c.automod;
+    const en = chk('Automod ligado', a.enabled), links = chk('Bloquear links', a.blockLinks), inv = chk('Bloquear convites', a.blockInvites);
+    const caps = chk('Filtro de maiúsculas', a.capsFilter.enabled), men = chk('Anti spam de menções', a.mentionSpam.enabled);
+    const num = (v) => h('input', { type: 'number', inputmode: 'numeric', value: v, min: 1 });
+    const pct = num(a.capsFilter.percent), minLen = num(a.capsFilter.minLength), maxMen = num(a.mentionSpam.maxMentions), mute = num(a.muteMinutes);
+    const act = sel([{ id: 'delete', name: 'Apagar' }, { id: 'delete_warn', name: 'Apagar e advertir' }, { id: 'delete_mute', name: 'Apagar e silenciar' }], a.action);
+    const words = h('textarea', { value: a.bannedWords.join('\n') });
+    const roles = checkList(d.roles, a.exemptRoleIds), chans = checkList(d.text, a.exemptChannelIds);
+    return h('div', {}, en.el, links.el, inv.el, caps.el, men.el,
+      h('div', { class: 'row' }, field('% de maiúsculas', pct), field('Tamanho mínimo p/ caps', minLen), field('Limite de menções', maxMen), field('Minutos de mute', mute)),
+      field('Ação', act), field('Palavras proibidas (uma por linha)', words),
+      field('Cargos isentos', roles.el), field('Canais isentos', chans.el),
+      saveBar(() => save('automod', {
+        enabled: en.i.checked, blockLinks: links.i.checked, blockInvites: inv.i.checked, capsEnabled: caps.i.checked, mentionEnabled: men.i.checked,
+        capsPercent: pct.value, capsMinLength: minLen.value, maxMentions: maxMen.value, muteMinutes: mute.value, action: act.value,
+        bannedWords: words.value.split('\n'), exemptRoleIds: roles.values(), exemptChannelIds: chans.values() })));
+  }
+  app.append(tabs, body); show('ticket');
+}
+
+async function viewBaygon(app) {
+  if (!PUB.isBaygon) { location.hash = '#/'; return; }
+  const { guilds } = await api('/api/baygon/guilds');
+  app.append(h('h2', {}, '🦟 Painel Baygon'), h('p', { class: 'mut' }, 'Itens e J-Coins valem em todos os servidores; cargos dependem do servidor escolhido.'));
+
+  const uid = h('input', { placeholder: 'ID da pessoa', inputmode: 'numeric' });
+  const accBox = h('div');
+  const lookup = async () => {
+    accBox.replaceChildren();
+    if (!/^\d{15,25}$/.test(uid.value.trim())) return;
+    try {
+      const a = await api('/api/baygon/account?userId=' + uid.value.trim());
+      const badges = Object.keys(a.badges).filter(k => a.badges[k]).map(k => ({ green: '🟢', red: '🔴', blue: '🔵' }[k])).join(' ') || 'nenhum';
+      accBox.append(h('div', { class: 'acc' }, a.user && a.user.avatar ? h('img', { src: a.user.avatar, alt: '' }) : null,
+        h('div', {}, h('b', {}, a.user ? a.user.username : 'Usuário desconhecido'), h('div', { class: 'mut' }, '💰 ' + a.balance.toLocaleString('pt-BR') + ' J-Coin · 🍀 ' + a.potions + ' · 🏅 ' + badges))));
+    } catch (e) { toast(e.message, true); }
+  };
+  uid.addEventListener('change', lookup);
+  const needUser = () => /^\d{15,25}$/.test(uid.value.trim()) ? uid.value.trim() : (toast('Informe o ID da pessoa.', true), null);
+  app.append(h('div', { class: 'card' }, field('Pessoa', uid), accBox));
+
+  const act = sel([{ id: 'add', name: 'Adicionar' }, { id: 'remove', name: 'Remover' }, { id: 'set', name: 'Definir' }], 'add');
+  const amount = h('input', { type: 'number', inputmode: 'numeric', min: 0, placeholder: '1000' });
+  app.append(h('div', { class: 'card' }, h('h3', { style: 'margin-top:0' }, '💰 Modificar J-Coins'),
+    h('div', { class: 'row' }, field('Ação', act), field('Quantia', amount)),
+    h('div', { class: 'bar' }, h('button', { class: 'btn ok', onclick: async () => { const u = needUser(); if (u && await run(() => api('/api/baygon/coins', 'POST', { userId: u, action: act.value, amount: amount.value }))) lookup(); } }, 'Aplicar'))));
+
+  const item = sel([{ id: 'potion', name: '🍀 Poção de Sorte' }, { id: 'badge_green', name: '🟢 Emblema Verde' }, { id: 'badge_red', name: '🔴 Emblema Vermelho' }, { id: 'badge_blue', name: '🔵 Emblema Azul' }], 'potion');
+  const qty = h('input', { type: 'number', inputmode: 'numeric', min: 1, value: 1 });
+  app.append(h('div', { class: 'card' }, h('h3', { style: 'margin-top:0' }, '🎁 Dar item'),
+    h('div', { class: 'row' }, field('Item', item), field('Quantidade (só poções)', qty)),
+    h('div', { class: 'bar' }, h('button', { class: 'btn ok', onclick: async () => { const u = needUser(); if (u && await run(() => api('/api/baygon/item', 'POST', { userId: u, item: item.value, qty: qty.value }))) lookup(); } }, 'Dar item'))));
+
+  const gsel = sel(guilds.map(g => ({ id: g.id, name: g.name })), guilds[0] && guilds[0].id);
+  const roleSel = h('select');
+  const loadRoles = async (keep) => {
+    if (!gsel.value) return;
+    const { roles } = await api('/api/baygon/roles?guildId=' + gsel.value);
+    roleSel.replaceChildren(...opts(roles, '(escolha o cargo)'));
+    if (keep) roleSel.value = keep;
+  };
+  gsel.addEventListener('change', () => loadRoles());
+  const rname = h('input', { placeholder: 'Nome do cargo' }), rcolor = h('input', { placeholder: 'ff00aa (opcional)' });
+  const hoist = chk('Mostrar separado na lista', false), ment = chk('Mencionável por todos', false);
+  const roleAct = (route) => () => {
+    const u = needUser(); if (!u) return;
+    if (!roleSel.value) return toast('Escolha o cargo.', true);
+    run(() => api('/api/baygon/' + route, 'POST', { guildId: gsel.value, userId: u, roleId: roleSel.value }));
+  };
+  app.append(h('div', { class: 'card' }, h('h3', { style: 'margin-top:0' }, '🏷️ Cargos'), field('Servidor', gsel),
+    h('h3', {}, 'Criar cargo'), h('div', { class: 'row' }, field('Nome', rname), field('Cor (hex)', rcolor)), hoist.el, ment.el,
+    h('div', { class: 'bar' }, h('button', { class: 'btn', onclick: async () => {
+      const r = await run(() => api('/api/baygon/role-create', 'POST', { guildId: gsel.value, name: rname.value, color: rcolor.value, hoist: hoist.i.checked, mentionable: ment.i.checked }));
+      if (r) { await loadRoles(r.roleId); rname.value = ''; }
+    } }, '➕ Criar cargo')),
+    h('h3', {}, 'Dar / tirar cargo da pessoa acima'), field('Cargo', roleSel),
+    h('div', { class: 'bar' }, h('button', { class: 'btn ok', onclick: roleAct('role-give') }, '✅ Dar cargo'), h('button', { class: 'btn err', onclick: roleAct('role-take') }, '❌ Tirar cargo'))));
+  loadRoles();
+}
+
+// ---------- roteador ----------
+async function render() {
+  const app = $('#app'); app.replaceChildren(); renderHeader(); window.scrollTo(0, 0);
+  const hash = location.hash || '#/';
+  try {
+    if (!PUB.user) return viewHome(app);
+    const m = hash.match(/^#\/guild\/(\d+)$/);
+    if (m) return await viewGuild(app, m[1]);
+    if (hash === '#/baygon') return await viewBaygon(app);
+    await viewServers(app);
+  } catch (e) { app.replaceChildren(h('p', { class: 'mut' }, 'Erro: ' + e.message), h('a', { class: 'btn sec', href: '#/' }, 'Voltar')); }
+}
+async function boot() { PUB = await api('/api/public'); await render(); }
+window.addEventListener('hashchange', () => PUB && render());
+boot().then(() => { if (new URLSearchParams(location.search).get('erro')) { toast('Não consegui fazer o login. Tente de novo.', true); history.replaceState(null, '', '/'); } });
+</script>
+</body>
+</html>

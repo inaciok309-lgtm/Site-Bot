@@ -1,0 +1,10 @@
+{
+  "name": "site-netlify-bot-discord",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site/dashboard do bot para o Netlify (mobile-first).",
+  "dependencies": {
+    "@netlify/blobs": ">=8.0.0"
+  },
+  "engines": { "node": ">=18.0.0" }
+}
